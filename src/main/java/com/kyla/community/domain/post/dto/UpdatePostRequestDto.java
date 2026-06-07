@@ -1,0 +1,19 @@
+package com.kyla.community.domain.post.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+// 제목·내용·선택 첨부파일을 포함한 게시글 수정 요청
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+public class UpdatePostRequestDto {
+	@NotBlank
+	private String postTitle;
+	@NotBlank
+	private String postContent;
+	private String attachFilePath;
+}
