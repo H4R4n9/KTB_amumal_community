@@ -14,6 +14,7 @@ import com.kyla.community.global.exception.ApiException;
 import com.kyla.community.global.security.AuthorizationValidator;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,6 +28,7 @@ public class UserService {
 	private final UserRepository userRepository;
 	private final ProfileImageRepository profileImageRepository;
 	private final AuthorizationValidator authorizationValidator;
+	private final PasswordEncoder passwordEncoder;
 
 	// 중복 검증과 (선택)프로필 이미지를 포함한 회원 생성
 	public SignupResponseDto signUp(SignupRequestDto request) {
@@ -35,7 +37,7 @@ public class UserService {
 
 		User user = new User(
 				request.getEmail(),
-				request.getPassword(),
+				passwordEncoder.encode(request.getPassword()), // BCrypt로 비밃번호 암호화해서 DB 저장
 				request.getNickname()
 		);
 		User savedUser = userRepository.save(user);
@@ -73,7 +75,7 @@ public class UserService {
 	// 비밀번호 확인값 검증 후 비밀번호 변경
 	public void changePassword(Long userId, ChangePasswordRequestDto request) {
 		validatePasswordMatch(request.getNewPassword(), request.getNewPasswordCheck());
-		getActiveUser(userId).updatePassword(request.getNewPassword());
+		getActiveUser(userId).updatePassword(passwordEncoder.encode(request.getNewPassword()));
 	}
 
 	// 프로필 이미지 파일 경로 저장
