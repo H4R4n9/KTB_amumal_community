@@ -1,5 +1,6 @@
-package com.kyla.community.domain.auth;
+package com.kyla.community.domain.auth.controller;
 
+import com.kyla.community.domain.auth.serevice.PasswordResetService;
 import com.kyla.community.domain.auth.dto.PasswordResetDto;
 import com.kyla.community.domain.auth.dto.VerificationCodeRequestDto;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package com.kyla.community.domain.auth;
+package com.kyla.community.domain.auth.serevice;
 
 import com.kyla.community.domain.auth.dto.LoginRequestDto;
 import com.kyla.community.domain.auth.dto.LoginResponseDto;

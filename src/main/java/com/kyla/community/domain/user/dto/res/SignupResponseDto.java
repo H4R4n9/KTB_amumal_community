@@ -1,4 +1,4 @@
-package com.kyla.community.domain.user.dto;
+package com.kyla.community.domain.user.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

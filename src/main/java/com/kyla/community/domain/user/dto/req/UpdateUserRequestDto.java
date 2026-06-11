@@ -1,4 +1,4 @@
-package com.kyla.community.domain.post.dto;
+package com.kyla.community.domain.user.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
@@ -6,14 +6,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-// 제목·내용·선택 첨부파일을 포함한 게시글 수정 요청
+// 닉네임과 선택 프로필 이미지를 포함한 회원 수정 요청
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class UpdatePostRequestDto {
+public class UpdateUserRequestDto {
 	@NotBlank
-	private String postTitle;
-	@NotBlank
-	private String postContent;
-	private String attachFilePath;
+	private String nickname;
+	private String profileImagePath;
 }

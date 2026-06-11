@@ -1,13 +1,13 @@
-package com.kyla.community.domain.post;
+package com.kyla.community.domain.post.service;
 
-import com.kyla.community.domain.post.dto.CreatePostRequestDto;
-import com.kyla.community.domain.post.dto.FileUploadResponseDto;
-import com.kyla.community.domain.post.dto.PostIdResponseDto;
-import com.kyla.community.domain.post.dto.PostInfoResponseDto;
-import com.kyla.community.domain.post.dto.UpdatePostRequestDto;
+import com.kyla.community.domain.post.dto.req.CreatePostRequestDto;
+import com.kyla.community.domain.post.dto.res.FileUploadResponseDto;
+import com.kyla.community.domain.post.dto.res.PostIdResponseDto;
+import com.kyla.community.domain.post.dto.res.PostInfoResponseDto;
+import com.kyla.community.domain.post.dto.req.UpdatePostRequestDto;
 import com.kyla.community.domain.post.entity.Post;
 import com.kyla.community.domain.post.repository.PostRepository;
-import com.kyla.community.domain.user.UserService;
+import com.kyla.community.domain.user.service.UserService;
 import com.kyla.community.domain.user.entity.User;
 import com.kyla.community.global.exception.ApiException;
 import com.kyla.community.global.security.AuthorizationValidator;
@@ -17,13 +17,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
-
 @Service // 게시글과 첨부파일 비즈니스 규칙 관리
 @Transactional // 게시글 변경 작업의 트랜잭션 관리
 @RequiredArgsConstructor
 public class PostService {
 	private final PostRepository postRepository;
+	private final PostFileService postFileService;
 	private final UserService userService;
 	private final AuthorizationValidator authorizationValidator;
 
@@ -48,11 +47,11 @@ public class PostService {
 		return new PostIdResponseDto(post.getPostId());
 	}
 
-	// 첨부파일 업로드 구현 예정
+	// 작성자 권한 검증 후 첨부파일 업로드
 	public FileUploadResponseDto uploadAttachFile(Long postId, Long userId, MultipartFile attachFile) {
 		Post post = getActivePostForUpdate(postId);
 		authorizationValidator.validateOwner(post.getUserId(), userId);
-		throw new ApiException(HttpStatus.NOT_IMPLEMENTED, "첨부파일 업로드는 아직 구현되지 않았습니다.");
+		return postFileService.upload(postId, attachFile);
 	}
 
 	// 작성자 권한 검증 후 게시글 소프트 삭제
@@ -90,7 +89,7 @@ public class PostService {
 				0,
 				0,
 				0,
-				List.of()
+				postFileService.getFiles(post.getPostId())
 		);
 	}
 }

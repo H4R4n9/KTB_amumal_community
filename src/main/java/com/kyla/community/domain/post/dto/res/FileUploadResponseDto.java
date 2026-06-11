@@ -1,4 +1,4 @@
-package com.kyla.community.domain.post.dto;
+package com.kyla.community.domain.post.dto.res;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,5 +7,6 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FileUploadResponseDto {
+	private String fileId;
 	private String filePath;
 }

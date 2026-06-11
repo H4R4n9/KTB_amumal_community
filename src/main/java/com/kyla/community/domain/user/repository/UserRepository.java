@@ -1,4 +1,4 @@
-package com.kyla.community.domain.user;
+package com.kyla.community.domain.user.repository;
 
 import com.kyla.community.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
