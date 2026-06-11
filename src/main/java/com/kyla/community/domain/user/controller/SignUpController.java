@@ -1,7 +1,8 @@
-package com.kyla.community.domain.user;
+package com.kyla.community.domain.user.controller;
 
-import com.kyla.community.domain.user.dto.SignupRequestDto;
-import com.kyla.community.domain.user.dto.SignupResponseDto;
+import com.kyla.community.domain.user.service.UserService;
+import com.kyla.community.domain.user.dto.req.SignupRequestDto;
+import com.kyla.community.domain.user.dto.res.SignupResponseDto;
 import com.kyla.community.global.common.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;

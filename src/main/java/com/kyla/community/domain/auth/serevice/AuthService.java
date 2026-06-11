@@ -1,4 +1,4 @@
-package com.kyla.community.domain.auth;
+package com.kyla.community.domain.auth.serevice;
 
 import com.kyla.community.domain.auth.dto.LoginRequestDto;
 import com.kyla.community.domain.auth.dto.LoginResponseDto;
@@ -13,6 +13,7 @@ import com.kyla.community.global.exception.ApiException;
 import com.kyla.community.global.security.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +31,14 @@ public class AuthService {
 	private final ProfileImageRepository profileImageRepository;
 	private final RefreshTokenRepository refreshTokenRepository;
 	private final JwtTokenProvider jwtTokenProvider;
+	private final PasswordEncoder passwordEncoder;
 
 	// 회원 인증과 JWT 및 리프레시 토큰 정보 저장
 	public LoginResponseDto login(LoginRequestDto request) {
 		User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
 				.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."));
-
-		if (!Objects.equals(request.getPassword(), user.getPassword())) {
+		// BCrypt로 암호화한 비밀번호 검증
+		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
 			throw new ApiException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다.");
 		}
 

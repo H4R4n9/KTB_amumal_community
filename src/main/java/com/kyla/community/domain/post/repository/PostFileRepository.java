@@ -12,7 +12,4 @@ public interface PostFileRepository extends JpaRepository<PostFile, Long> {
 	// 게시글 첨부파일의 표시 순서 조회
 	List<PostFile> findByPostIdOrderByFileOrderAsc(Long postId);
 
-	// 신규 첨부파일 순번 계산용 마지막 순서 조회
-	@Query("select coalesce(max(pf.fileOrder), 0) from PostFile pf where pf.postId = :postId")
-	int findMaxFileOrderByPostId(@Param("postId") Long postId);
 }

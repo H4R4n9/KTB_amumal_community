@@ -24,7 +24,7 @@ public class VerificationCode {
 	private Long verificationCodeId;
 	@Column(nullable = false, length = 255)
 	private String email;
-	@Column(nullable = false, length = 10)
+	@Column(nullable = false, length = 6)
 	private String code;
 	@Column(nullable = false)
 	private LocalDateTime expiresAt;

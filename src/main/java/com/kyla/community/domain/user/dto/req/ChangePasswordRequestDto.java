@@ -1,4 +1,4 @@
-package com.kyla.community.domain.user.dto;
+package com.kyla.community.domain.user.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

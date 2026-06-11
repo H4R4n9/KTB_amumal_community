@@ -1,5 +1,6 @@
-package com.kyla.community.domain.auth;
+package com.kyla.community.domain.auth.controller;
 
+import com.kyla.community.domain.auth.serevice.AuthService;
 import com.kyla.community.domain.auth.dto.LoginRequestDto;
 import com.kyla.community.domain.auth.dto.LoginResponseDto;
 import com.kyla.community.domain.auth.dto.TokenRefreshRequestDto;

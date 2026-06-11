@@ -1,4 +1,4 @@
-package com.kyla.community.domain.post.dto;
+package com.kyla.community.domain.post.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AccessLevel;
