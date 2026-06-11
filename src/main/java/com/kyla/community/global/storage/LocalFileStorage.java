@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Service
 public class LocalFileStorage implements FileStorage {
-    @Value("${file.upload-dir}")
+    @Value("${file.upload-dir:uploads}")
     private String uploadDirectory;
 
 
@@ -28,12 +28,8 @@ public class LocalFileStorage implements FileStorage {
             Path directory = Paths.get(uploadDirectory).toAbsolutePath().normalize();
             Files.createDirectories(directory);
 
-            // 로컬 파일명 충돌 방지
-            String originalFilename = file.getOriginalFilename();
-            String safeFilename = originalFilename == null
-                    ? "file"
-                    : Paths.get(originalFilename).getFileName().toString();
-            String filename = UUID.randomUUID() + "_" + safeFilename;
+            // 로컬 파일명 충돌 방지;
+            String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path targetPath = directory.resolve(filename);
 
             // 로컬 파일 저장
