@@ -7,6 +7,5 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class FileUploadResponseDto {
-	private String fileId;
 	private String filePath;
 }

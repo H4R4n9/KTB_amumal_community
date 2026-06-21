@@ -15,5 +15,5 @@ public class CreatePostRequestDto {
 	private String postTitle;
 	@NotBlank
 	private String postContent;
-	private String attachFilePath;
+	private String postFilePath;
 }

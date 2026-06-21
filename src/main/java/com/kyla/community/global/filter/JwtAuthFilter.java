@@ -33,14 +33,15 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 			@NonNull HttpServletResponse response,
 			@NonNull FilterChain chain
 	) throws IOException, ServletException {
+		if (isPublicRequest(request)) {
+			chain.doFilter(request, response);
+			return;
+		}
+
 		Optional<String> token = extractToken(request);
 
 		if (token.isEmpty()) {
-			if (isPublicRequest(request)) {
-				chain.doFilter(request, response);
-			} else {
-				writeUnauthorizedResponse(response, "인증 토큰이 필요합니다.");
-			}
+			writeUnauthorizedResponse(response, "인증 토큰이 필요합니다.");
 			return;
 		}
 
@@ -71,10 +72,16 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		if (HttpMethod.OPTIONS.matches(method) || path.startsWith("/error")) {
 			return true;
 		}
+		if (path.startsWith("/uploads/")) {
+			return true;
+		}
 		if (path.startsWith("/auth")) {
 			return true;
 		}
 		if (HttpMethod.POST.matches(method) && "/users".equals(path)) {
+			return true;
+		}
+		if (HttpMethod.POST.matches(method) && "/users/upload/profile-image".equals(path)) {
 			return true;
 		}
 		if (HttpMethod.GET.matches(method)

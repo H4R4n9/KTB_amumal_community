@@ -1,12 +1,14 @@
 package com.kyla.community.global.exception;
 
 import com.kyla.community.global.common.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 @RestControllerAdvice // API 예외의 공통 응답 변환
 public class GlobalExceptionHandler {
@@ -23,6 +25,8 @@ public class GlobalExceptionHandler {
 	// 요청값 검증과 필수 헤더 오류의 400 응답
 	@ExceptionHandler({
 			MethodArgumentNotValidException.class,
+			ConstraintViolationException.class,
+			HandlerMethodValidationException.class,
 			MissingRequestHeaderException.class,
 			IllegalArgumentException.class
 	})

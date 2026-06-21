@@ -1,5 +1,6 @@
 package com.kyla.community.domain.post.dto.res;
 
+import com.kyla.community.domain.user.dto.res.AuthorResponseDto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -15,6 +16,7 @@ public class PostInfoResponseDto {
 	private String postContent;
 	private Long userId;
 	private String nickname;
+	private AuthorResponseDto author;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 	private LocalDateTime deletedAt;
@@ -22,4 +24,35 @@ public class PostInfoResponseDto {
 	private long commentCount;
 	private long viewCount;
 	private List<PostFileInfoResponseDto> files;
+
+	public Long getId() {
+		return postId;
+	}
+
+	public String getTitle() {
+		return postTitle;
+	}
+
+	public String getContent() {
+		return postContent;
+	}
+
+	public Long getWriterId() {
+		return userId;
+	}
+
+	public String getProfileImagePath() {
+		return author == null ? null : author.getProfileImagePath();
+	}
+
+	public long getLikeCount() {
+		return like;
+	}
+
+	public String getFilePath() {
+		if (files == null || files.isEmpty()) {
+			return null;
+		}
+		return files.get(0).getFilePath();
+	}
 }
