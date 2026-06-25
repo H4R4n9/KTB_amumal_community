@@ -22,7 +22,7 @@ public class UserController {
 	private final UserService userService;
 
 	// 로그인 본인의 회원정보 조회
-	@GetMapping("/me")
+	@GetMapping("/{userId}")
 	public ResponseEntity<ApiResponse<UserResponseDto>> getUser(
 			@PathVariable Long userId,
 			@RequestAttribute(JwtAuthFilter.LOGIN_USER_ID_ATTRIBUTE) Long loginUserId
@@ -32,7 +32,7 @@ public class UserController {
 	}
 
 	// 회원 프로필 정보 수정
-	@PutMapping("/me")
+	@PutMapping("/{userId}")
 	public ResponseEntity<ApiResponse<Void>> updateProfile(
 			@PathVariable Long userId,
 			@RequestAttribute(JwtAuthFilter.LOGIN_USER_ID_ATTRIBUTE) Long loginUserId,
@@ -53,7 +53,7 @@ public class UserController {
 	}
 
 	// 회원 계정의 소프트 삭제
-	@DeleteMapping("/me")
+	@DeleteMapping("/{userId}")
 	public ResponseEntity<ApiResponse<Void>> deleteUser(
 			@PathVariable Long userId,
 			@RequestAttribute(JwtAuthFilter.LOGIN_USER_ID_ATTRIBUTE) Long loginUserId

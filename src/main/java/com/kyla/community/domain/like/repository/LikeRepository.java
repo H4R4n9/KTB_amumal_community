@@ -1,5 +1,6 @@
-package com.kyla.community.domain.like;
+package com.kyla.community.domain.like.repository;
 
+import com.kyla.community.domain.like.entity.Like;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

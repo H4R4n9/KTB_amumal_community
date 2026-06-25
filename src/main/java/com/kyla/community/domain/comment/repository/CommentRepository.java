@@ -1,5 +1,6 @@
-package com.kyla.community.domain.comment;
+package com.kyla.community.domain.comment.repository;
 
+import com.kyla.community.domain.comment.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

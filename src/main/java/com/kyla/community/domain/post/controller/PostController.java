@@ -4,6 +4,7 @@ import com.kyla.community.domain.post.dto.req.CreatePostRequestDto;
 import com.kyla.community.domain.post.dto.res.PostIdResponseDto;
 import com.kyla.community.domain.post.dto.res.PostInfoResponseDto;
 import com.kyla.community.domain.post.dto.req.UpdatePostRequestDto;
+import com.kyla.community.domain.post.dto.res.PostListItemResponseDto;
 import com.kyla.community.domain.post.service.PostService;
 import com.kyla.community.global.common.ApiResponse;
 import com.kyla.community.global.filter.JwtAuthFilter;
@@ -19,13 +20,38 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @RestController // 게시글 API 요청 처리
 @RequestMapping("/posts")
 @RequiredArgsConstructor
 public class PostController {
 	private final PostService postService;
+
+	// 게시글 목록 조회
+	@GetMapping
+	public ResponseEntity<ApiResponse<List<PostListItemResponseDto>>> getPosts(
+			@RequestParam(defaultValue = "0") int offset,
+			@RequestParam(defaultValue = "5") int limit
+	) {
+		List<PostListItemResponseDto> response = postService.getList(offset, limit);
+		return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "게시글 목록 조회 성공", response));
+	}
+
+	// 게시글 검색
+	@GetMapping("/search")
+	public ResponseEntity<ApiResponse<List<PostListItemResponseDto>>> searchPosts(
+			@RequestParam String keyword,
+			@RequestParam(defaultValue = "0") int offset,
+			@RequestParam(defaultValue = "5") int limit,
+			@RequestParam(defaultValue = "recent") String sort
+	) {
+		List<PostListItemResponseDto> response = postService.search(keyword, offset, limit, sort);
+		return ResponseEntity.ok(ApiResponse.success(HttpStatus.OK.value(), "게시글 검색 성공", response));
+	}
 
 	// 게시글 상세 조회
 	@GetMapping("/{postId}")

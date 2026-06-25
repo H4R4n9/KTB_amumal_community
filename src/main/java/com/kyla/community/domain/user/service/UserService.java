@@ -1,6 +1,7 @@
 package com.kyla.community.domain.user.service;
 
 import com.kyla.community.domain.user.dto.req.ChangePasswordRequestDto;
+import com.kyla.community.domain.user.dto.res.AuthorResponseDto;
 import com.kyla.community.domain.user.dto.res.ProfileUploadResponseDto;
 import com.kyla.community.domain.user.dto.req.SignupRequestDto;
 import com.kyla.community.domain.user.dto.res.SignupResponseDto;
@@ -68,6 +69,7 @@ public class UserService {
 			validateNicknameAvailable(request.getNickname());
 		}
 		user.updateNickname(request.getNickname());
+		userProfileImageService.saveIfChanged(userId, request.getProfileImagePath());
 	}
 
 	// 비밀번호 확인값 검증 후 비밀번호 변경
@@ -76,15 +78,9 @@ public class UserService {
 		getActiveUser(userId).updatePassword(passwordEncoder.encode(request.getNewPassword()));
 	}
 
-	// 프로필 이미지 파일 경로 저장
-	public ProfileUploadResponseDto uploadProfileImage(
-			Long userId,
-			Long loginUserId,
-			MultipartFile profileImage
-	) {
-		authorizationValidator.validateOwner(userId, loginUserId);
-		getActiveUser(userId);
-		return userProfileImageService.upload(userId, profileImage);
+	// 회원 생성·수정 전에 선택 프로필 이미지 업로드
+	public ProfileUploadResponseDto uploadProfileImage(MultipartFile profileImage) {
+		return userProfileImageService.upload(profileImage);
 	}
 
 	// 회원 탈퇴 시 삭제 시각 기록
@@ -105,6 +101,17 @@ public class UserService {
 				getProfileImagePath(userId),
 				user.getCreatedAt(),
 				user.getUpdatedAt()
+		);
+	}
+
+	// 게시글·댓글 작성자 표시 정보 조회
+	@Transactional(readOnly = true)
+	public AuthorResponseDto getAuthor(Long userId) {
+		User user = getActiveUser(userId);
+		return new AuthorResponseDto(
+				user.getUserId(),
+				user.getNickname(),
+				getProfileImagePath(userId)
 		);
 	}
 

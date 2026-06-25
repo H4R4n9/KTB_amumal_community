@@ -1,4 +1,4 @@
-package com.kyla.community.domain.comment;
+package com.kyla.community.domain.comment.entity;
 
 import com.kyla.community.global.entity.BaseTimeEntity;
 import jakarta.persistence.Column;
