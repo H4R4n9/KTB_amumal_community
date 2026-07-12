@@ -1,0 +1,201 @@
+name: Backend CD
+# CI 완료 이벤트 또는 수동 작업, 실행자를 Actions 목록에 표시
+run-name: Backend CD | ${{ github.event_name }} | ${{ inputs.operation || 'deploy' }} | by ${{ github.actor }}
+
+on:
+  # main 브랜치의 Backend CI가 완료된 후에 CD가 시작되도록 함
+  workflow_run:
+    workflows:
+      - Backend CI
+    branches:
+      - main
+    types:
+      - completed
+  # CI 결과와 관계없이 수동 배포 또는 롤백을 실행할 수 있도록 설정
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 실행할 배포 작업
+        type: choice
+        options:
+          - deploy
+          - rollback
+        default: deploy
+        required: true
+      image_tag:
+        description: 수동 배포에 사용할 기존 ECR 이미지 태그
+        type: string
+        required: false
+
+# 운영 배포가 겹치지 않도록 한 번에 하나만 실행하고, 진행 중인 배포는 취소하지 않음
+concurrency:
+  group: backend-production-deployment
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Blue-green deploy or rollback
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    # production Environment의 승인 규칙과 변수를 적용한다.
+    environment: production
+    permissions:
+      contents: read
+      # GitHub OIDC로 임시 AWS 권한을 요청한다.
+      id-token: write
+
+    # Repository 또는 production Environment에서 관리하는 배포 설정이다.
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      ECR_REPOSITORY: ${{ vars.ECR_REPOSITORY }}
+      SSM_INSTANCE_ID: ${{ vars.BACKEND_EC2_INSTANCE_ID }}
+      ENV_SECRET_ID: ${{ vars.BACKEND_ENV_SECRET_ID }}
+      HEALTH_PATH: /actuator/health
+      BLUE_PORT: "8081"
+      GREEN_PORT: "8082"
+
+    steps:
+      # 자동 배포는 CI가 검증한 커밋 SHA 태그를 사용하고, 수동 실행은 입력값을 사용한다.
+      - name: Resolve operation and revision
+        id: release
+        shell: bash
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          WORKFLOW_SHA: ${{ github.event.workflow_run.head_sha }}
+          MANUAL_OPERATION: ${{ inputs.operation }}
+          MANUAL_IMAGE_TAG: ${{ inputs.image_tag }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$EVENT_NAME" == "workflow_run" ]]; then
+            operation="deploy"
+            source_sha="$WORKFLOW_SHA"
+            image_tag="sha-$WORKFLOW_SHA"
+          else
+            operation="${MANUAL_OPERATION:-deploy}"
+            source_sha="$GITHUB_SHA"
+            image_tag="${MANUAL_IMAGE_TAG:-sha-$GITHUB_SHA}"
+          fi
+
+          echo "operation=$operation" >> "$GITHUB_OUTPUT"
+          echo "source_sha=$source_sha" >> "$GITHUB_OUTPUT"
+          echo "image_tag=$image_tag" >> "$GITHUB_OUTPUT"
+
+      # 배포 대상 커밋에 포함된 blue-green 스크립트를 가져온다.
+      - name: Checkout deployment scripts
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release.outputs.source_sha }}
+
+      # AWS 요청 전에 필수 변수 누락 여부를 확인한다.
+      - name: Validate deployment configuration
+        shell: bash
+        env:
+          AWS_CD_ROLE_ARN: ${{ vars.AWS_CD_ROLE_ARN }}
+        run: |
+          set -euo pipefail
+          : "${AWS_CD_ROLE_ARN:?Set the AWS_CD_ROLE_ARN repository or environment variable}"
+          : "${AWS_REGION:?Set the AWS_REGION repository or environment variable}"
+          : "${ECR_REPOSITORY:?Set the ECR_REPOSITORY repository or environment variable}"
+          : "${SSM_INSTANCE_ID:?Set the BACKEND_EC2_INSTANCE_ID repository or environment variable}"
+
+      # 장기 Access Key 없이 CD 전용 IAM Role을 Assume한다.
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_CD_ROLE_ARN }}
+          role-session-name: github-backend-cd-${{ github.run_id }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      # ECR Registry 주소를 구하고 Docker 인증 수행
+      - name: Resolve ECR registry
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      # 배포할 SHA 태그가 붙어있는 버전의 이미지가 ECR에 push 되었는 지 확인
+      - name: Verify deployment inputs
+        shell: bash
+        env:
+          OPERATION: ${{ steps.release.outputs.operation }}
+          IMAGE_TAG: ${{ steps.release.outputs.image_tag }}
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          set -euo pipefail
+          : "${AWS_REGION:?Set the AWS_REGION repository variable}"
+          : "${ECR_REPOSITORY:?Set the ECR_REPOSITORY repository variable}"
+          : "${SSM_INSTANCE_ID:?Set the BACKEND_EC2_INSTANCE_ID repository variable}"
+
+          if [[ "$OPERATION" == "deploy" ]]; then
+            aws ecr describe-images \
+              --repository-name "$ECR_REPOSITORY" \
+              --image-ids imageTag="$IMAGE_TAG" >/dev/null
+            echo "Deploying $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          else
+            echo "Rolling back to the retained previous color"
+          fi
+
+      # SSM으로 private subnet의 EC2에 배포 또는 롤백 스크립트를 전달한다.
+      - name: Run deployment through SSM
+        shell: bash
+        env:
+          OPERATION: ${{ steps.release.outputs.operation }}
+          IMAGE_TAG: ${{ steps.release.outputs.image_tag }}
+          ECR_REGISTRY: ${{ steps.ecr.outputs.registry }}
+        run: |
+          set -euo pipefail
+
+          if [[ "$OPERATION" == "deploy" ]]; then
+            script_path=".github/scripts/deploy-blue-green.sh"
+            image_uri="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          else
+            script_path=".github/scripts/rollback-blue-green.sh"
+            image_uri="unused"
+          fi
+
+          # 스크립트를 Base64로 전달해 여러 줄 명령의 인용 문제를 방지한다.
+          script_base64="$(base64 -w 0 "$script_path")"
+          printf -v remote_command \
+            "echo %q | base64 -d | sudo bash -s -- %q %q %q %q %q %q %q" \
+            "$script_base64" "$image_uri" "$ECR_REGISTRY" "$AWS_REGION" \
+            "$ENV_SECRET_ID" "$HEALTH_PATH" "$BLUE_PORT" "$GREEN_PORT"
+
+          parameters="$(jq -cn --arg command "$remote_command" '{commands: [$command]}')"
+          # SSM 명령은 최대 10분 동안 실행할 수 있다.
+          command_id="$(aws ssm send-command \
+            --instance-ids "$SSM_INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --timeout-seconds 600 \
+            --comment "backend-$OPERATION-${GITHUB_RUN_ID}" \
+            --parameters "$parameters" \
+            --query 'Command.CommandId' \
+            --output text)"
+
+          # 명령이 종료될 때까지 5초 간격으로 상태를 확인한다.
+          status="Pending"
+          for _ in $(seq 1 120); do
+            status="$(aws ssm get-command-invocation \
+              --command-id "$command_id" \
+              --instance-id "$SSM_INSTANCE_ID" \
+              --query Status \
+              --output text 2>/dev/null || true)"
+            case "$status" in
+              Success|Failed|Cancelled|TimedOut|Cancelling) break ;;
+            esac
+            sleep 5
+          done
+
+          # EC2에서 실행된 표준 출력과 오류를 Actions 로그에 표시한다.
+          result="$(aws ssm get-command-invocation \
+            --command-id "$command_id" \
+            --instance-id "$SSM_INSTANCE_ID")"
+
+          echo "$result" | jq -r '.StandardOutputContent'
+          echo "$result" | jq -r '.StandardErrorContent' >&2
+          status="$(echo "$result" | jq -r '.Status')"
+
+          if [[ "$status" != "Success" ]]; then
+            echo "SSM operation failed with status: $status" >&2
+            exit 1
+          fi
