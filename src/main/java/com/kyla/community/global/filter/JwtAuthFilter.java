@@ -68,6 +68,17 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	private boolean isPublicRequest(HttpServletRequest request) {
 		String method = request.getMethod();
 		String path = request.getRequestURI();
+		String contextPath = request.getContextPath();
+
+		if (!contextPath.isEmpty() && path.startsWith(contextPath)) {
+			path = path.substring(contextPath.length());
+		}
+
+		// 배포 및 인프라 헬스체크는 JWT 인증 없이 접근
+
+		if (path.startsWith("/actuator/health")) {
+			return true;
+		}
 
 		if (HttpMethod.OPTIONS.matches(method) || path.startsWith("/error")) {
 			return true;
