@@ -12,7 +12,7 @@ public class UserResponseDto {
 	private Long userId;
 	private String email;
 	private String nickname;
-	private String profileImagePath;
+	private String profileImageObjectKey;
 	private LocalDateTime createdAt;
 	private LocalDateTime updatedAt;
 }

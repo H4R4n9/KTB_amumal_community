@@ -1,4 +1,4 @@
-package com.kyla.community.config;
+package com.kyla.community.global.config;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;

@@ -19,11 +19,19 @@ public class QProfileImage extends EntityPathBase<ProfileImage> {
 
     public static final QProfileImage profileImage = new QProfileImage("profileImage");
 
-    public final StringPath filePath = createString("filePath");
+    public final StringPath contentType = createString("contentType");
 
-    public final NumberPath<Long> profileImageId = createNumber("profileImageId", Long.class);
+    public final DateTimePath<java.time.LocalDateTime> createdAt = createDateTime("createdAt", java.time.LocalDateTime.class);
+
+    public final NumberPath<Long> fileSize = createNumber("fileSize", Long.class);
+
+    public final StringPath objectKey = createString("objectKey");
+
+    public final DateTimePath<java.time.LocalDateTime> updatedAt = createDateTime("updatedAt", java.time.LocalDateTime.class);
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
+
+    public final NumberPath<Long> userProfileImageId = createNumber("userProfileImageId", Long.class);
 
     public QProfileImage(String variable) {
         super(ProfileImage.class, forVariable(variable));

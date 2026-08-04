@@ -99,7 +99,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 				&& ("/users/email".equals(path) || "/users/nickname".equals(path))) {
 			return true;
 		}
-		return HttpMethod.GET.matches(method) && path.startsWith("/posts");
+		return HttpMethod.GET.matches(method) && isPublicGoalRead(path);
+	}
+
+	private boolean isPublicGoalRead(String path) {
+		return "/goals".equals(path)
+				|| "/goals/search".equals(path)
+				|| path.matches("/goals/\\d+");
 	}
 
 	// 프로젝트 공통 형식의 인증 실패 응답

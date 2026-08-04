@@ -7,5 +7,5 @@ import java.util.Optional;
 
 // 프로필 이미지 저장과 회원별 최신 이미지 조회
 public interface ProfileImageRepository extends JpaRepository<ProfileImage, Long> {
-	Optional<ProfileImage> findFirstByUserIdOrderByProfileImageIdDesc(Long userId);
+	Optional<ProfileImage> findByUserId(Long userId);
 }

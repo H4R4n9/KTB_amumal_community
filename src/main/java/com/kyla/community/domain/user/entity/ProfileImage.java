@@ -11,26 +11,47 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@Entity // 회원 프로필 이미지 경로 저장
-@Table(name = "profile_images")
+@Entity
+@Table(name = "user_profile_images")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProfileImage {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(columnDefinition = "INT UNSIGNED")
-	private Long profileImageId;
+	private Long userProfileImageId;
 	@Column(nullable = false, columnDefinition = "INT UNSIGNED")
 	private Long userId;
-	@Column(nullable = false, length = 500)
-	private String filePath;
+	@Column(nullable = false, length = 512, unique = true)
+	private String objectKey;
+	@Column(nullable = false, length = 100)
+	private String contentType;
+	@Column(nullable = false, columnDefinition = "BIGINT UNSIGNED")
+	private long fileSize;
+	@Column(nullable = false, updatable = false)
+	private java.time.LocalDateTime createdAt;
+	@Column(nullable = false)
+	private java.time.LocalDateTime updatedAt;
 
-	public ProfileImage(Long userId, String filePath) {
+	public ProfileImage(Long userId, String objectKey, String contentType, long fileSize) {
 		this.userId = userId;
-		this.filePath = filePath;
+		update(objectKey, contentType, fileSize);
 	}
 
-	// 프로필 이미지 파일 경로 변경
-	public void updateFilePath(String filePath) {
-		this.filePath = filePath;
+	public void update(String objectKey, String contentType, long fileSize) {
+		this.objectKey = objectKey;
+		this.contentType = contentType;
+		this.fileSize = fileSize;
+	}
+
+	@jakarta.persistence.PrePersist
+	void prePersist() {
+		java.time.LocalDateTime now = java.time.LocalDateTime.now();
+		createdAt = now;
+		updatedAt = now;
+	}
+
+	@jakarta.persistence.PreUpdate
+	void preUpdate() {
+		updatedAt = java.time.LocalDateTime.now();
 	}
 }

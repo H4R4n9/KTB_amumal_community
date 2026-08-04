@@ -38,7 +38,7 @@ public class AuthService {
 		User user = userRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
 				.orElseThrow(() -> new ApiException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다."));
 		// BCrypt로 암호화한 비밀번호 검증
-		if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+		if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
 			throw new ApiException(HttpStatus.UNAUTHORIZED, "이메일 또는 비밀번호가 올바르지 않습니다.");
 		}
 
@@ -53,8 +53,8 @@ public class AuthService {
 				user.getUserId(),
 				user.getEmail(),
 				user.getNickname(),
-				profileImageRepository.findFirstByUserIdOrderByProfileImageIdDesc(user.getUserId())
-						.map(profileImage -> profileImage.getFilePath())
+				profileImageRepository.findByUserId(user.getUserId())
+						.map(profileImage -> profileImage.getObjectKey())
 						.orElse(null),
 				accessToken,
 				refreshToken,
@@ -83,7 +83,7 @@ public class AuthService {
 		return new TokenRefreshResponseDto(accessToken, "Bearer");
 	}
 
-	// 로그아웃 시에 저장된 refresh Token의 is_revoked = true로 변경
+	// 로그아웃 시 저장된 refresh token의 폐기 시각 기록
 	public void logout(String refreshToken) {
 		refreshTokenRepository.findByTokenHash(hashToken(refreshToken))
 				.ifPresent(RefreshToken::revoke);

@@ -1,6 +1,7 @@
 package com.kyla.community.domain.user.dto.req;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -12,6 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateUserRequestDto {
 	@NotBlank
+	@Size(max = 10)
 	private String nickname;
-	private String profileImagePath;
+	private String profileImageObjectKey;
+	private String profileImageContentType;
+	private Long profileImageFileSize;
 }
