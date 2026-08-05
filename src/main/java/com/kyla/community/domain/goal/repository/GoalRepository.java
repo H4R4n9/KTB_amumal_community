@@ -1,5 +1,6 @@
 package com.kyla.community.domain.goal.repository;
 
+import com.kyla.community.domain.goal.dto.projection.GoalListRowDto;
 import com.kyla.community.domain.goal.entity.Goal;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Pageable;
@@ -12,16 +13,55 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GoalRepository extends JpaRepository<Goal, Long> {
-	List<Goal> findAllByOrderByCreatedAtDesc(Pageable pageable);
-
 	@Query("""
 			select g
 			from Goal g
+			join fetch g.stat
+			where g.goalId = :goalId
+			""")
+	Optional<Goal> findDetailById(@Param("goalId") Long goalId);
+
+	@Query("""
+			select new com.kyla.community.domain.goal.dto.projection.GoalListRowDto(
+				g.goalId,
+				g.title,
+				g.startDate,
+				g.endDate,
+				g.status,
+				u.userId,
+				u.nickname,
+				s.viewCount,
+				s.likeCount,
+				g.createdAt
+			)
+			from Goal g
+			join g.user u
+			join g.stat s
+			order by g.createdAt desc, g.goalId desc
+			""")
+	List<GoalListRowDto> findListRows(Pageable pageable);
+
+	@Query("""
+			select new com.kyla.community.domain.goal.dto.projection.GoalListRowDto(
+				g.goalId,
+				g.title,
+				g.startDate,
+				g.endDate,
+				g.status,
+				u.userId,
+				u.nickname,
+				s.viewCount,
+				s.likeCount,
+				g.createdAt
+			)
+			from Goal g
+			join g.user u
+			join g.stat s
 			where lower(g.title) like lower(concat('%', :keyword, '%'))
 			   or lower(coalesce(g.description, '')) like lower(concat('%', :keyword, '%'))
-			order by g.createdAt desc
+			order by g.createdAt desc, g.goalId desc
 			""")
-	List<Goal> search(@Param("keyword") String keyword, Pageable pageable);
+	List<GoalListRowDto> searchRows(@Param("keyword") String keyword, Pageable pageable);
 
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
 	@Query("select g from Goal g where g.goalId = :goalId")

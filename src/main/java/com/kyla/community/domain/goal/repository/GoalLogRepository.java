@@ -8,6 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface GoalLogRepository extends JpaRepository<GoalLog, Long> {
-	Optional<GoalLog> findByGoalIdAndLogDate(Long goalId, LocalDate logDate);
-	List<GoalLog> findByGoalIdOrderByLogDateDesc(Long goalId);
+	Optional<GoalLog> findByGoalGoalIdAndLogDate(Long goalId, LocalDate logDate);
+	List<GoalLog> findByGoalGoalIdOrderByLogDateDesc(Long goalId);
 }

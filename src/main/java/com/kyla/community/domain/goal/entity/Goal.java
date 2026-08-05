@@ -1,19 +1,15 @@
 package com.kyla.community.domain.goal.entity;
 
+import com.kyla.community.domain.user.entity.User;
 import com.kyla.community.global.entity.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -25,8 +21,27 @@ public class Goal extends BaseTimeEntity {
 	@Column(columnDefinition = "INT UNSIGNED")
 	private Long goalId;
 
-	@Column(nullable = false, columnDefinition = "INT UNSIGNED")
-	private Long userId;
+	// goals 테이블에서 user_id 와 Many to one 관계로 단방향 참조
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "user_id", nullable = false, columnDefinition = "INT UNSIGNED")
+	private User user;
+
+	@OneToMany(
+			mappedBy = "goal",
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL,
+			orphanRemoval = true
+	)
+	@OrderBy("displayOrder ASC")
+	private List<GoalImage> images = new ArrayList<>();
+
+	@OneToOne(
+			mappedBy = "goal",
+			fetch = FetchType.LAZY,
+			cascade = CascadeType.ALL,
+			orphanRemoval = true
+	)
+	private GoalStat stat;
 
 	@Column(nullable = false, length = 100)
 	private String title;
@@ -44,15 +59,34 @@ public class Goal extends BaseTimeEntity {
 	private GoalStatus status;
 
 	public Goal(
-			Long userId,
+			User user,
 			String title,
 			String description,
 			LocalDate startDate,
 			LocalDate endDate,
 			GoalStatus status
 	) {
-		this.userId = userId;
+		this.user = user;
 		update(title, description, startDate, endDate, status);
+	}
+
+	// goal과 stat, goal과 image는 양방향 연관관계를 갖고 있기 때문에 양쪽 객체를 모두 연결해야한다.
+	public void initializeStat() {
+		this.stat = new GoalStat(this);
+	}
+
+	public void addImage(GoalImage image) {
+		images.add(image);
+		image.assignGoal(this);
+	}
+
+	public void removeImage(GoalImage image) {
+		images.remove(image);
+		image.removeGoal();
+	}
+
+	public void clearImages() {
+		new ArrayList<>(images).forEach(this::removeImage);
 	}
 
 	public void update(
@@ -78,4 +112,5 @@ public class Goal extends BaseTimeEntity {
 			throw new IllegalArgumentException("목표 종료일은 시작일보다 빠를 수 없습니다.");
 		}
 	}
+
 }

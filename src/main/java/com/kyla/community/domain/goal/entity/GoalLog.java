@@ -1,15 +1,7 @@
 package com.kyla.community.domain.goal.entity;
 
 import com.kyla.community.global.entity.BaseTimeEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,8 +25,11 @@ public class GoalLog extends BaseTimeEntity {
 	@Column(columnDefinition = "INT UNSIGNED")
 	private Long logId;
 
-	@Column(nullable = false, columnDefinition = "INT UNSIGNED")
-	private Long goalId;
+	// goal과 단방향 연관관계
+	// 장기 목표인 경우 하나의 goal_id에 여러 goal_log 가 발생할 수 있다.
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "goal_id", nullable = false, columnDefinition = "INT UNSIGNED")
+	private Goal goal;
 
 	@Column(nullable = false)
 	private LocalDate logDate;
@@ -43,8 +38,8 @@ public class GoalLog extends BaseTimeEntity {
 	@Column(name = "completion_status", nullable = false, length = 20)
 	private GoalLogStatus completionStatus;
 
-	public GoalLog(Long goalId, LocalDate logDate, GoalLogStatus completionStatus) {
-		this.goalId = goalId;
+	public GoalLog(Goal goal, LocalDate logDate, GoalLogStatus completionStatus) {
+		this.goal = goal;
 		this.logDate = logDate;
 		this.completionStatus = Objects.requireNonNull(completionStatus, "목표 기록 상태가 필요합니다.");
 	}

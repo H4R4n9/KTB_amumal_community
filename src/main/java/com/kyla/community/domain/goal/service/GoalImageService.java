@@ -4,7 +4,6 @@ import com.kyla.community.domain.goal.dto.req.GoalImageRequestDto;
 import com.kyla.community.domain.goal.dto.res.GoalImageResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalImageUploadResponseDto;
 import com.kyla.community.domain.goal.entity.GoalImage;
-import com.kyla.community.domain.goal.repository.GoalImageRepository;
 import com.kyla.community.global.storage.FileStorage;
 import com.kyla.community.global.storage.StoredFile;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +18,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class GoalImageService {
 	private final FileStorage fileStorage;
-	private final GoalImageRepository goalImageRepository;
 
 	public GoalImageUploadResponseDto upload(MultipartFile image) {
 		StoredFile storedFile = fileStorage.uploadImage(image, "goals");
@@ -30,26 +28,20 @@ public class GoalImageService {
 		);
 	}
 
-	public void replace(Long goalId, List<GoalImageRequestDto> requests) {
-		if (requests == null) {
-			return;
-		}
+	public List<GoalImage> createImages(List<GoalImageRequestDto> requests) {
 		validate(requests);
-		goalImageRepository.deleteByGoalId(goalId);
-		List<GoalImage> images = requests.stream()
+		return requests.stream()
 				.map(request -> new GoalImage(
-						goalId,
 						request.getObjectKey(),
 						request.getContentType(),
 						request.getFileSize(),
 						request.getDisplayOrder()
 				))
 				.toList();
-		goalImageRepository.saveAll(images);
 	}
 
-	public List<GoalImageResponseDto> getImages(Long goalId) {
-		return goalImageRepository.findByGoalIdOrderByDisplayOrderAsc(goalId)
+	public List<GoalImageResponseDto> toResponses(List<GoalImage> images) {
+		return images
 				.stream()
 				.map(this::toResponse)
 				.toList();

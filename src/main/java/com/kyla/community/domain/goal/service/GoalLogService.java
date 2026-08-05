@@ -2,6 +2,7 @@ package com.kyla.community.domain.goal.service;
 
 import com.kyla.community.domain.goal.dto.req.UpdateGoalLogRequestDto;
 import com.kyla.community.domain.goal.dto.res.GoalLogResponseDto;
+import com.kyla.community.domain.goal.entity.Goal;
 import com.kyla.community.domain.goal.entity.GoalLog;
 import com.kyla.community.domain.goal.repository.GoalLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +25,9 @@ public class GoalLogService {
 			Long userId,
 			UpdateGoalLogRequestDto request
 	) {
-		goalService.validateOwner(goalId, userId);
-		GoalLog log = goalLogRepository.findByGoalIdAndLogDate(goalId, logDate)
-				.orElseGet(() -> new GoalLog(goalId, logDate, request.getCompletionStatus()));
+		Goal goal = goalService.getOwnedGoal(goalId, userId);
+		GoalLog log = goalLogRepository.findByGoalGoalIdAndLogDate(goalId, logDate)
+				.orElseGet(() -> new GoalLog(goal, logDate, request.getCompletionStatus()));
 		log.updateStatus(request.getCompletionStatus());
 		return toResponse(goalLogRepository.save(log));
 	}
@@ -34,7 +35,7 @@ public class GoalLogService {
 	@Transactional(readOnly = true)
 	public List<GoalLogResponseDto> getLogs(Long goalId, Long userId) {
 		goalService.validateOwner(goalId, userId);
-		return goalLogRepository.findByGoalIdOrderByLogDateDesc(goalId)
+		return goalLogRepository.findByGoalGoalIdOrderByLogDateDesc(goalId)
 				.stream()
 				.map(this::toResponse)
 				.toList();
@@ -42,14 +43,14 @@ public class GoalLogService {
 
 	public void delete(Long goalId, LocalDate logDate, Long userId) {
 		goalService.validateOwner(goalId, userId);
-		goalLogRepository.findByGoalIdAndLogDate(goalId, logDate)
+		goalLogRepository.findByGoalGoalIdAndLogDate(goalId, logDate)
 				.ifPresent(goalLogRepository::delete);
 	}
 
 	private GoalLogResponseDto toResponse(GoalLog log) {
 		return new GoalLogResponseDto(
 				log.getLogId(),
-				log.getGoalId(),
+				log.getGoal().getGoalId(),
 				log.getLogDate(),
 				log.getCompletionStatus(),
 				log.getCreatedAt(),

@@ -1,18 +1,10 @@
 package com.kyla.community.domain.goal.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import com.kyla.community.global.entity.CreatedTimeEntity;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -24,14 +16,15 @@ import java.time.LocalDateTime;
 		}
 )
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class GoalImage {
+public class GoalImage extends CreatedTimeEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(columnDefinition = "INT UNSIGNED")
 	private Long goalImageId;
 
-	@Column(nullable = false, columnDefinition = "INT UNSIGNED")
-	private Long goalId;
+	@ManyToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "goal_id", nullable = false, columnDefinition = "INT UNSIGNED")
+	private Goal goal;
 
 	@Column(nullable = false, unique = true, length = 512)
 	private String objectKey;
@@ -45,19 +38,19 @@ public class GoalImage {
 	@Column(nullable = false, columnDefinition = "SMALLINT UNSIGNED")
 	private int displayOrder;
 
-	@Column(nullable = false, updatable = false)
-	private LocalDateTime createdAt;
-
-	public GoalImage(Long goalId, String objectKey, String contentType, long fileSize, int displayOrder) {
-		this.goalId = goalId;
+	public GoalImage(String objectKey, String contentType, long fileSize, int displayOrder) {
 		this.objectKey = objectKey;
 		this.contentType = contentType;
 		this.fileSize = fileSize;
 		this.displayOrder = displayOrder;
 	}
 
-	@PrePersist
-	void prePersist() {
-		createdAt = LocalDateTime.now();
+	// goal과 image 양방향 연관관계
+	void assignGoal(Goal goal) {
+		this.goal = goal;
+	}
+
+	void removeGoal() {
+		this.goal = null;
 	}
 }

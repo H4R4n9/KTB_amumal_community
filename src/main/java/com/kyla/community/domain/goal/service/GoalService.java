@@ -1,5 +1,7 @@
 package com.kyla.community.domain.goal.service;
 
+import com.kyla.community.domain.goal.dto.projection.GoalListRowDto;
+import com.kyla.community.domain.goal.dto.projection.GoalRepresentativeImageDto;
 import com.kyla.community.domain.goal.dto.req.CreateGoalRequestDto;
 import com.kyla.community.domain.goal.dto.req.UpdateGoalRequestDto;
 import com.kyla.community.domain.goal.dto.res.GoalDetailResponseDto;
@@ -9,9 +11,13 @@ import com.kyla.community.domain.goal.dto.res.GoalListItemResponseDto;
 import com.kyla.community.domain.goal.entity.Goal;
 import com.kyla.community.domain.goal.entity.GoalStat;
 import com.kyla.community.domain.goal.entity.GoalStatus;
+import com.kyla.community.domain.goal.repository.GoalImageRepository;
 import com.kyla.community.domain.goal.repository.GoalRepository;
 import com.kyla.community.domain.goal.repository.GoalStatRepository;
+import com.kyla.community.domain.user.dto.projection.UserProfileImageDto;
 import com.kyla.community.domain.user.dto.res.AuthorResponseDto;
+import com.kyla.community.domain.user.entity.User;
+import com.kyla.community.domain.user.repository.ProfileImageRepository;
 import com.kyla.community.domain.user.service.UserService;
 import com.kyla.community.global.exception.ApiException;
 import com.kyla.community.global.security.AuthorizationValidator;
@@ -23,6 +29,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -30,40 +39,45 @@ import java.util.List;
 public class GoalService {
 	private final GoalRepository goalRepository;
 	private final GoalStatRepository goalStatRepository;
+	private final GoalImageRepository goalImageRepository;
+	private final ProfileImageRepository profileImageRepository;
 	private final GoalImageService goalImageService;
 	private final UserService userService;
 	private final AuthorizationValidator authorizationValidator;
 
 	public GoalIdResponseDto create(Long userId, CreateGoalRequestDto request) {
-		userService.getActiveUser(userId);
-		Goal goal = goalRepository.save(new Goal(
-				userId,
+		User user = userService.getActiveUser(userId);
+		Goal goal = new Goal(
+				user,
 				request.getTitle(),
 				request.getDescription(),
 				request.getStartDate(),
 				request.getEndDate(),
 				request.getStatus() == null ? GoalStatus.IN_PROGRESS : request.getStatus()
-		));
-		goalStatRepository.save(new GoalStat(goal.getGoalId()));
-		goalImageService.replace(goal.getGoalId(), request.getImages() == null ? List.of() : request.getImages());
-		return new GoalIdResponseDto(goal.getGoalId());
+		);
+
+		goal.initializeStat();
+		goalImageService.createImages(
+				request.getImages() == null ? List.of() : request.getImages()
+		).forEach(goal::addImage);
+
+		Goal savedGoal = goalRepository.save(goal);
+		return new GoalIdResponseDto(savedGoal.getGoalId());
 	}
 
 	public GoalDetailResponseDto getDetail(Long goalId) {
-		Goal goal = getGoal(goalId);
 		if (goalStatRepository.increaseViewCount(goalId) != 1) {
-			throw new IllegalStateException("목표 통계 정보가 존재하지 않습니다.");
+			throw new ApiException(HttpStatus.NOT_FOUND, "요청한 목표를 찾을 수 없습니다.");
 		}
-		return toDetailResponse(goal, getStat(goalId));
+		Goal goal = goalRepository.findDetailById(goalId)
+				.orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "요청한 목표를 찾을 수 없습니다."));
+		List<GoalImageResponseDto> images = goalImageRepository.findResponsesByGoalId(goalId);
+		return toDetailResponse(goal, images);
 	}
 
 	@Transactional(readOnly = true)
 	public List<GoalListItemResponseDto> getList(int offset, int limit) {
-		Pageable pageable = toPageable(offset, limit);
-		return goalRepository.findAllByOrderByCreatedAtDesc(pageable)
-				.stream()
-				.map(this::toListItemResponse)
-				.toList();
+		return toListResponses(goalRepository.findListRows(toPageable(offset, limit)));
 	}
 
 	@Transactional(readOnly = true)
@@ -71,15 +85,12 @@ public class GoalService {
 		if (keyword == null || keyword.isBlank()) {
 			throw new IllegalArgumentException("검색어가 필요합니다.");
 		}
-		return goalRepository.search(keyword.trim(), toPageable(offset, limit))
-				.stream()
-				.map(this::toListItemResponse)
-				.toList();
+		return toListResponses(goalRepository.searchRows(keyword.trim(), toPageable(offset, limit)));
 	}
 
 	public GoalIdResponseDto update(Long goalId, Long userId, UpdateGoalRequestDto request) {
 		Goal goal = getGoalForUpdate(goalId);
-		authorizationValidator.validateOwner(goal.getUserId(), userId);
+		validateOwner(goal, userId);
 		goal.update(
 				request.getTitle(),
 				request.getDescription(),
@@ -87,13 +98,19 @@ public class GoalService {
 				request.getEndDate(),
 				request.getStatus()
 		);
-		goalImageService.replace(goalId, request.getImages());
+
+		if (request.getImages() != null) {
+			goal.clearImages();
+			goalRepository.flush();
+			goalImageService.createImages(request.getImages())
+					.forEach(goal::addImage);
+		}
 		return new GoalIdResponseDto(goalId);
 	}
 
 	public void delete(Long goalId, Long userId) {
 		Goal goal = getGoalForUpdate(goalId);
-		authorizationValidator.validateOwner(goal.getUserId(), userId);
+		validateOwner(goal, userId);
 		goalRepository.delete(goal);
 	}
 
@@ -104,8 +121,15 @@ public class GoalService {
 	}
 
 	@Transactional(readOnly = true)
+	public Goal getOwnedGoal(Long goalId, Long userId) {
+		Goal goal = getGoal(goalId);
+		validateOwner(goal, userId);
+		return goal;
+	}
+
+	@Transactional(readOnly = true)
 	public void validateOwner(Long goalId, Long userId) {
-		authorizationValidator.validateOwner(getGoal(goalId).getUserId(), userId);
+		validateOwner(getGoal(goalId), userId);
 	}
 
 	private Goal getGoalForUpdate(Long goalId) {
@@ -113,52 +137,76 @@ public class GoalService {
 				.orElseThrow(() -> new ApiException(HttpStatus.NOT_FOUND, "요청한 목표를 찾을 수 없습니다."));
 	}
 
-	private GoalStat getStat(Long goalId) {
-		return goalStatRepository.findById(goalId)
-				.orElseThrow(() -> new IllegalStateException("목표 통계 정보가 존재하지 않습니다."));
+	private void validateOwner(Goal goal, Long userId) {
+		authorizationValidator.validateOwner(goal.getUser().getUserId(), userId);
 	}
 
-	private GoalDetailResponseDto toDetailResponse(Goal goal, GoalStat stat) {
+	private GoalDetailResponseDto toDetailResponse(Goal goal, List<GoalImageResponseDto> images) {
+		GoalStat stat = goal.getStat();
 		return new GoalDetailResponseDto(
 				goal.getGoalId(),
-				goal.getUserId(),
+				goal.getUser().getUserId(),
 				goal.getTitle(),
 				goal.getDescription(),
 				goal.getStartDate(),
 				goal.getEndDate(),
 				goal.getStatus(),
-				toAuthorResponse(goal.getUserId()),
+				toAuthorResponse(goal.getUser()),
 				stat.getViewCount(),
 				stat.getLikeCount(),
-				goalImageService.getImages(goal.getGoalId()),
+				images,
 				goal.getCreatedAt(),
 				goal.getUpdatedAt()
 		);
 	}
 
-	private GoalListItemResponseDto toListItemResponse(Goal goal) {
-		GoalStat stat = getStat(goal.getGoalId());
-		String representativeImage = goalImageService.getImages(goal.getGoalId())
-				.stream()
-				.findFirst()
-				.map(GoalImageResponseDto::objectKey)
-				.orElse(null);
-		return new GoalListItemResponseDto(
-				goal.getGoalId(),
-				goal.getTitle(),
-				goal.getStartDate(),
-				goal.getEndDate(),
-				goal.getStatus(),
-				toAuthorResponse(goal.getUserId()),
-				stat.getViewCount(),
-				stat.getLikeCount(),
-				representativeImage,
-				goal.getCreatedAt()
-		);
+	private AuthorResponseDto toAuthorResponse(User user) {
+		return userService.getAuthor(user.getUserId());
 	}
 
-	private AuthorResponseDto toAuthorResponse(Long userId) {
-		return userService.getAuthor(userId);
+	private List<GoalListItemResponseDto> toListResponses(List<GoalListRowDto> rows) {
+		if (rows.isEmpty()) {
+			return List.of();
+		}
+
+		List<Long> goalIds = rows.stream()
+				.map(GoalListRowDto::goalId)
+				.toList();
+		Set<Long> userIds = rows.stream()
+				.map(GoalListRowDto::userId)
+				.collect(Collectors.toSet());
+
+		Map<Long, String> imageByGoalId = goalImageRepository.findRepresentativesByGoalIds(goalIds)
+				.stream()
+				.collect(Collectors.toMap(
+						GoalRepresentativeImageDto::goalId,
+						GoalRepresentativeImageDto::objectKey
+				));
+		Map<Long, String> profileByUserId = profileImageRepository.findResponsesByUserIds(userIds)
+				.stream()
+				.collect(Collectors.toMap(
+						UserProfileImageDto::userId,
+						UserProfileImageDto::objectKey
+				));
+
+		return rows.stream()
+				.map(row -> new GoalListItemResponseDto(
+						row.goalId(),
+						row.title(),
+						row.startDate(),
+						row.endDate(),
+						row.status(),
+						new AuthorResponseDto(
+								row.userId(),
+								row.nickname(),
+								profileByUserId.get(row.userId())
+						),
+						row.viewCount(),
+						row.likeCount(),
+						imageByGoalId.get(row.goalId()),
+						row.createdAt()
+				))
+				.toList();
 	}
 
 	private Pageable toPageable(int offset, int limit) {
