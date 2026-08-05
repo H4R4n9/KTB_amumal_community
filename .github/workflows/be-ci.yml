@@ -1,0 +1,142 @@
+name: Backend CI
+# Actions 실행 목록에 트리거 이벤트, 브랜치, 실행자를 표시
+run-name: Backend CI | ${{ github.event_name }} | ${{ github.ref_name }} | by ${{ github.actor }}
+
+on:
+  # PR을 병합하기 전에 path에 해당하는 파일 중에 변경사항이 있는 경우에만 CI를 실행하도록 설정
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+    paths:
+      - "src/**"
+      - "gradle/**"
+      - "build.gradle"
+      - "settings.gradle"
+      - "gradlew"
+      - "gradlew.bat"
+      - "Dockerfile"
+      - ".dockerignore"
+      - ".github/workflows/ci.yml"
+      - ".github/scripts/**"
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - "gradle/**"
+      - "build.gradle"
+      - "settings.gradle"
+      - "gradlew"
+      - "gradlew.bat"
+      - "Dockerfile"
+      - ".dockerignore"
+      - ".github/workflows/ci.yml"
+      - ".github/scripts/**"
+  # GitHub Actions 화면에서 CI 수동 트리거도 가능하도록 추가
+  workflow_dispatch:
+
+# 같은 브랜치에 새 커밋이 올라오면 이전 실행을 취소한다.
+concurrency:
+  group: backend-ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 애플리케이션 테스트 후에 JAR와 Docker 이미지 빌드를 검증하는 단계
+  # 빌드 시간을 줄이기 위해서 애플리케이션 테스트를 CI에 포함하지 않는 방법도 고려하는 중
+  build:
+    name: Test and build backend image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          # Gradle 의존성 다운로드 결과를 캐시
+          cache: gradle
+
+      - name: Validate Gradle wrapper
+        uses: gradle/actions/wrapper-validation@v4
+
+      - name: Run tests
+        run: ./gradlew test --no-daemon
+
+      - name: Build application JAR
+        run: ./gradlew bootJar --no-daemon
+
+      - name: Upload test report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-report-${{ github.run_id }}
+          path: build/reports/tests/test
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Verify Docker image build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          # 이미지를 Registry에 올리지 않고 빌드만 검증한다.
+          push: false
+          tags: backend-ci:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # build job을 통과한 main 브랜치 커밋만 ECR에 push
+  publish-image:
+    name: Publish immutable image to ECR
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # GitHub OIDC로 임시 AWS 권한 요구
+      id-token: write
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Configure short-lived AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          role-to-assume: ${{ vars.AWS_CI_ROLE_ARN }}
+          role-session-name: github-backend-ci-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Log in to Amazon ECR
+        id: ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push verified revision
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          # tag에 git commit sha를 붙여 버전 관리
+          tags: ${{ steps.ecr.outputs.registry }}/${{ vars.ECR_REPOSITORY }}:sha-${{ github.sha }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: true
+          sbom: true
