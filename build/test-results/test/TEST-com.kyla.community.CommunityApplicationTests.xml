@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.kyla.community.CommunityApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-06-07T14:54:15.509Z" hostname="kylakimui-MacBookPro.local" time="2.844">
+<testsuite name="com.kyla.community.CommunityApplicationTests" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-08-04T06:51:19.289Z" hostname="kylakimui-MacBookPro.local" time="4.123">
   <properties/>
-  <testcase name="contextLoads()" classname="com.kyla.community.CommunityApplicationTests" time="0.234"/>
-  <system-out><![CDATA[23:54:15.567 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.kyla.community.CommunityApplicationTests]: CommunityApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-23:54:15.611 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.kyla.community.CommunityApplication for test class com.kyla.community.CommunityApplicationTests
-23:54:15.639 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.kyla.community.CommunityApplicationTests]: CommunityApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
-23:54:15.640 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.kyla.community.CommunityApplication for test class com.kyla.community.CommunityApplicationTests
+  <testcase name="contextLoads()" classname="com.kyla.community.CommunityApplicationTests" time="0.265"/>
+  <system-out><![CDATA[15:51:19.377 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.kyla.community.CommunityApplicationTests]: CommunityApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:51:19.430 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.kyla.community.CommunityApplication for test class com.kyla.community.CommunityApplicationTests
+15:51:19.467 [Test worker] INFO org.springframework.test.context.support.AnnotationConfigContextLoaderUtils -- Could not detect default configuration classes for test class [com.kyla.community.CommunityApplicationTests]: CommunityApplicationTests does not declare any static, non-private, non-final, nested classes annotated with @Configuration.
+15:51:19.468 [Test worker] INFO org.springframework.boot.test.context.SpringBootTestContextBootstrapper -- Found @SpringBootConfiguration com.kyla.community.CommunityApplication for test class com.kyla.community.CommunityApplicationTests
 
   .   ____          _            __ _ _
  /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
@@ -16,32 +16,34 @@
 
  :: Spring Boot ::                (v4.0.6)
 
-2026-06-07T23:54:15.752+09:00  INFO 72618 --- [    Test worker] c.k.community.CommunityApplicationTests  : Starting CommunityApplicationTests using Java 21.0.11 with PID 72618 (started by kyla.kim in /Users/kyla.kim/Downloads/community)
-2026-06-07T23:54:15.752+09:00  INFO 72618 --- [    Test worker] c.k.community.CommunityApplicationTests  : No active profile set, falling back to 1 default profile: "default"
-2026-06-07T23:54:16.014+09:00  INFO 72618 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-06-07T23:54:16.048+09:00  INFO 72618 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 30 ms. Found 9 JPA repository interfaces.
-2026-06-07T23:54:16.235+09:00  INFO 72618 --- [    Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
-2026-06-07T23:54:16.260+09:00  INFO 72618 --- [    Test worker] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
-2026-06-07T23:54:16.426+09:00  INFO 72618 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-06-07T23:54:16.441+09:00  INFO 72618 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-06-07T23:54:16.512+09:00  INFO 72618 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:community-test user=SA
-2026-06-07T23:54:16.513+09:00  INFO 72618 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-06-07T23:54:16.539+09:00  INFO 72618 --- [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
-	Database JDBC URL [jdbc:h2:mem:community-test]
+2026-08-04T15:51:19.599+09:00  INFO 92926 --- [    Test worker] c.k.community.CommunityApplicationTests  : Starting CommunityApplicationTests using Java 21.0.11 with PID 92926 (started by kyla.kim in /Users/kyla.kim/Desktop/amumal/amumal_BE)
+2026-08-04T15:51:19.600+09:00  INFO 92926 --- [    Test worker] c.k.community.CommunityApplicationTests  : No active profile set, falling back to 1 default profile: "default"
+2026-08-04T15:51:20.001+09:00  INFO 92926 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-08-04T15:51:20.037+09:00  INFO 92926 --- [    Test worker] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 31 ms. Found 8 JPA repository interfaces.
+2026-08-04T15:51:20.417+09:00  INFO 92926 --- [    Test worker] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-08-04T15:51:20.446+09:00  INFO 92926 --- [    Test worker] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-08-04T15:51:20.819+09:00  INFO 92926 --- [    Test worker] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-08-04T15:51:20.843+09:00  INFO 92926 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-08-04T15:51:20.993+09:00  INFO 92926 --- [    Test worker] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection conn0: url=jdbc:h2:mem:amumal-test user=SA
+2026-08-04T15:51:20.995+09:00  INFO 92926 --- [    Test worker] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-08-04T15:51:21.060+09:00  INFO 92926 --- [    Test worker] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:h2:mem:amumal-test]
 	Database driver: H2 JDBC Driver
 	Database dialect: H2Dialect
 	Database version: 2.4.240
-	Default catalog/schema: community-test/PUBLIC
+	Default catalog/schema: amumal-test/PUBLIC
 	Autocommit mode: undefined/unknown
 	Isolation level: READ_COMMITTED [default READ_COMMITTED]
 	JDBC fetch size: 100
 	Pool: DataSourceConnectionProvider
 	Minimum pool size: undefined/unknown
 	Maximum pool size: undefined/unknown
-2026-06-07T23:54:17.011+09:00  INFO 72618 --- [    Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-06-07T23:54:17.039+09:00  INFO 72618 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-06-07T23:54:17.093+09:00  INFO 72618 --- [    Test worker] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-06-07T23:54:18.113+09:00  INFO 72618 --- [    Test worker] c.k.community.CommunityApplicationTests  : Started CommunityApplicationTests in 2.446 seconds (process running for 2.904)
+2026-08-04T15:51:21.681+09:00  INFO 92926 --- [    Test worker] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-08-04T15:51:21.708+09:00  INFO 92926 --- [    Test worker] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-08-04T15:51:21.753+09:00  INFO 92926 --- [    Test worker] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-08-04T15:51:22.858+09:00  WARN 92926 --- [    Test worker] o.s.w.s.resource.ResourceHandlerUtils    : Appended trailing slash to static resource location: file:///Users/kyla.kim/Desktop/amumal/amumal_BE/uploads/
+2026-08-04T15:51:23.065+09:00  INFO 92926 --- [    Test worker] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-08-04T15:51:23.099+09:00  INFO 92926 --- [    Test worker] c.k.community.CommunityApplicationTests  : Started CommunityApplicationTests in 3.604 seconds (process running for 4.388)
 ]]></system-out>
   <system-err><![CDATA[Mockito is currently self-attaching to enable the inline-mock-maker. This will no longer work in future releases of the JDK. Please add Mockito as an agent to your build as described in Mockito's documentation: https://javadoc.io/doc/org.mockito/mockito-core/latest/org.mockito/org/mockito/Mockito.html#0.3
 WARNING: A Java agent has been loaded dynamically (/Users/kyla.kim/.gradle/caches/modules-2/files-2.1/net.bytebuddy/byte-buddy-agent/1.17.8/f09415827a71be7ed621c7bd02550678f28bc81c/byte-buddy-agent-1.17.8.jar)

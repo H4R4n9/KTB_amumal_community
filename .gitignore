@@ -38,3 +38,8 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Local installers and deployment artifacts
+AWSCLIV2.pkg
+amumal-backend-latest.tar
+.DS_Store

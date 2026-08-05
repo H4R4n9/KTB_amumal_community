@@ -12,7 +12,7 @@ public class LoginResponseDto {
 	private Long userId;
 	private String email;
 	private String nickname;
-	private String profileImagePath;
+	private String profileImageObjectKey;
 	private String accessToken;
 	private String refreshToken;
 	private String tokenType;

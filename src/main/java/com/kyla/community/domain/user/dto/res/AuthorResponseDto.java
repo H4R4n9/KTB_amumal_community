@@ -8,5 +8,5 @@ import lombok.Getter;
 public class AuthorResponseDto {
 	private Long userId;
 	private String nickname;
-	private String profileImagePath;
+	private String profileImageObjectKey;
 }

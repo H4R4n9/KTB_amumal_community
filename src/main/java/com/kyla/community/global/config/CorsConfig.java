@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 @Configuration
 public class CorsConfig implements WebMvcConfigurer {
-	private static final String DEFAULT_ALLOWED_ORIGIN = "http://localhost:3000";
+	private static final String DEFAULT_ALLOWED_ORIGIN = "https://kylamumal.cloud";
 	private final String[] allowedOrigins;
 
 	public CorsConfig(@Value("${app.cors.allowed-origins:" + DEFAULT_ALLOWED_ORIGIN + "}") String allowedOrigins) {

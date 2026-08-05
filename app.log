@@ -1,0 +1,97 @@
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v4.0.6)
+
+2026-06-21T12:02:03.605+09:00  INFO 24695 --- [community] [           main] c.kyla.community.CommunityApplication    : Starting CommunityApplication v0.0.1-SNAPSHOT using Java 21.0.11 with PID 24695 (/Users/kyla.kim/Desktop/amumal/amumal_BE/build/libs/community-0.0.1-SNAPSHOT.jar started by kyla.kim in /Users/kyla.kim/Desktop/amumal/amumal_BE)
+2026-06-21T12:02:03.606+09:00  INFO 24695 --- [community] [           main] c.kyla.community.CommunityApplication    : No active profile set, falling back to 1 default profile: "default"
+2026-06-21T12:02:03.894+09:00  INFO 24695 --- [community] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-06-21T12:02:03.921+09:00  INFO 24695 --- [community] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 23 ms. Found 9 JPA repository interfaces.
+2026-06-21T12:02:04.154+09:00  INFO 24695 --- [community] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat initialized with port 8080 (http)
+2026-06-21T12:02:04.161+09:00  INFO 24695 --- [community] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-06-21T12:02:04.161+09:00  INFO 24695 --- [community] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/11.0.21]
+2026-06-21T12:02:04.172+09:00  INFO 24695 --- [community] [           main] b.w.c.s.WebApplicationContextInitializer : Root WebApplicationContext: initialization completed in 538 ms
+2026-06-21T12:02:04.307+09:00  INFO 24695 --- [community] [           main] org.hibernate.orm.jpa                    : HHH008540: Processing PersistenceUnitInfo [name: default]
+2026-06-21T12:02:04.342+09:00  INFO 24695 --- [community] [           main] org.hibernate.orm.core                   : HHH000001: Hibernate ORM core version 7.2.12.Final
+2026-06-21T12:02:04.554+09:00  INFO 24695 --- [community] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-06-21T12:02:04.569+09:00  INFO 24695 --- [community] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-06-21T12:02:04.713+09:00  INFO 24695 --- [community] [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@74a1d60e
+2026-06-21T12:02:04.714+09:00  INFO 24695 --- [community] [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-06-21T12:02:04.758+09:00  INFO 24695 --- [community] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [jdbc:mysql://localhost:3306/amumal?serverTimezone=Asia/Seoul&characterEncoding=UTF-8]
+	Database driver: MySQL Connector/J
+	Database dialect: MySQLDialect
+	Database version: 9.6
+	Default catalog/schema: amumal/undefined
+	Autocommit mode: undefined/unknown
+	Isolation level: REPEATABLE_READ [default REPEATABLE_READ]
+	JDBC fetch size: none
+	Pool: DataSourceConnectionProvider
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-06-21T12:02:05.195+09:00  INFO 24695 --- [community] [           main] org.hibernate.orm.core                   : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-06-21T12:02:05.220+09:00  INFO 24695 --- [community] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-06-21T12:02:05.252+09:00  INFO 24695 --- [community] [           main] o.s.d.j.r.query.QueryEnhancerFactories   : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-06-21T12:02:05.970+09:00  WARN 24695 --- [community] [           main] o.s.w.s.resource.ResourceHandlerUtils    : Appended trailing slash to static resource location: file:///Users/kyla.kim/Desktop/amumal/amumal_BE/uploads/
+2026-06-21T12:02:06.054+09:00  INFO 24695 --- [community] [           main] o.s.boot.tomcat.TomcatWebServer          : Tomcat started on port 8080 (http) with context path '/v1'
+2026-06-21T12:02:06.061+09:00  INFO 24695 --- [community] [           main] c.kyla.community.CommunityApplication    : Started CommunityApplication in 2.63 seconds (process running for 2.858)
+2026-06-21T12:12:29.098+09:00  INFO 24695 --- [community] [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/v1]     : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-06-21T12:12:29.098+09:00  INFO 24695 --- [community] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-06-21T12:12:29.099+09:00  INFO 24695 --- [community] [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 1 ms
+2026-06-21T13:23:32.945+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Retrograde clock change detected (housekeeper delta=27s548ms), soft-evicting connections from pool.
+2026-06-21T13:36:12.019+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=7m39s4ms).
+2026-06-21T13:49:02.972+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=12m20s944ms).
+2026-06-21T14:02:19.751+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m16s745ms).
+2026-06-21T14:21:06.287+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m16s525ms).
+2026-06-21T14:37:56.241+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m49s954ms).
+2026-06-21T14:50:15.210+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=11m48s960ms).
+2026-06-21T15:08:23.115+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m7s874ms).
+2026-06-21T15:26:08.791+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m45s640ms).
+2026-06-21T15:44:20.291+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m11s494ms).
+2026-06-21T16:00:39.239+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m18s947ms).
+2026-06-21T16:18:13.786+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m34s512ms).
+2026-06-21T16:36:33.619+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m19s808ms).
+2026-06-21T16:54:34.436+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m794ms).
+2026-06-21T17:04:06.400+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=7m1s983ms).
+2026-06-21T17:21:14.530+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m38s110ms).
+2026-06-21T17:40:10.002+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m55s427ms).
+2026-06-21T17:58:06.357+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m56s318ms).
+2026-06-21T18:05:04.535+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=5m28s156ms).
+2026-06-21T18:22:48.560+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m14s5ms).
+2026-06-21T18:40:55.715+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m7s116ms).
+2026-06-21T18:59:22.758+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m27s21ms).
+2026-06-21T19:06:18.903+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=4m56s132ms).
+2026-06-21T19:22:50.858+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m31s955ms).
+2026-06-21T19:41:41.039+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m20s156ms).
+2026-06-21T19:59:51.413+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m10s354ms).
+2026-06-21T20:03:04.223+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=1m42s788ms).
+2026-06-21T20:07:15.566+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=2m11s304ms).
+2026-06-21T20:24:38.163+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m52s581ms).
+2026-06-21T20:42:23.343+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m45s147ms).
+2026-06-21T20:58:31.323+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m7s980ms).
+2026-06-21T21:08:06.023+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=5m34s636ms).
+2026-06-21T21:24:09.230+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=16m3s207ms).
+2026-06-21T21:42:29.229+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m49s988ms).
+2026-06-21T22:01:36.940+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m37s655ms).
+2026-06-21T22:09:06.682+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=6m59s733ms).
+2026-06-21T22:32:34.362+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m27s559ms).
+2026-06-21T22:48:52.456+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m48s84ms).
+2026-06-21T23:03:13.507+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=12m51s20ms).
+2026-06-21T23:10:04.417+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=6m20s899ms).
+2026-06-21T23:27:05.563+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m31s114ms).
+2026-06-21T23:44:38.710+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=15m33s135ms).
+2026-06-22T00:04:20.650+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m41s908ms).
+2026-06-22T00:10:57.660+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=5m6s992ms).
+2026-06-22T00:31:02.308+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=18m4s611ms).
+2026-06-22T00:49:50.470+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=17m18s136ms).
+2026-06-22T01:01:17.720+09:00  WARN 24695 --- [community] [l-1:housekeeper] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Thread starvation or clock leap detected (housekeeper delta=10m57s240ms).
+2026-06-22T02:40:08.734+09:00  INFO 24695 --- [community] [ionShutdownHook] o.s.boot.tomcat.GracefulShutdown         : Commencing graceful shutdown. Waiting for active requests to complete
+2026-06-22T02:40:08.751+09:00  INFO 24695 --- [community] [tomcat-shutdown] o.s.boot.tomcat.GracefulShutdown         : Graceful shutdown complete
+2026-06-22T02:40:08.772+09:00  INFO 24695 --- [community] [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-06-22T02:40:08.782+09:00  INFO 24695 --- [community] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-06-22T02:40:08.788+09:00  INFO 24695 --- [community] [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

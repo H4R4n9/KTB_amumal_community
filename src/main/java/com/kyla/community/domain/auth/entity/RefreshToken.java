@@ -27,8 +27,9 @@ public class RefreshToken {
 	private String tokenHash;
 	@Column(nullable = false)
 	private LocalDateTime expiresAt;
-	@Column(name = "is_revoked", nullable = false)
-	private boolean isRevoked;
+	private LocalDateTime revokedAt;
+	@Column(nullable = false, updatable = false)
+	private LocalDateTime createdAt;
 
 	public RefreshToken(Long userId, String tokenHash, LocalDateTime expiresAt) {
 		this.userId = userId;
@@ -38,11 +39,18 @@ public class RefreshToken {
 
 	// 미폐기·미만료 토큰 여부 확인
 	public boolean isUsable() {
-		return !isRevoked && expiresAt.isAfter(LocalDateTime.now());
+		return revokedAt == null && expiresAt.isAfter(LocalDateTime.now());
 	}
 
 	// 로그아웃용 토큰 폐기 상태 변경
 	public void revoke() {
-		isRevoked = true;
+		if (revokedAt == null) {
+			revokedAt = LocalDateTime.now();
+		}
+	}
+
+	@jakarta.persistence.PrePersist
+	void prePersist() {
+		createdAt = LocalDateTime.now();
 	}
 }

@@ -7,5 +7,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class ProfileUploadResponseDto {
-	private String filePath;
+	private String objectKey;
+	private String contentType;
+	private long fileSize;
 }

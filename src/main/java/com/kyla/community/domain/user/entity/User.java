@@ -24,22 +24,22 @@ public class User extends BaseTimeEntity {
 	private Long userId;
 	@Column(nullable = false, unique = true, length = 255)
 	private String email;
-	@Column(nullable = false, length = 255)
-	private String password;
-	@Column(nullable = false, unique = true, length = 50)
+	@Column(name = "password_hash", nullable = false, length = 255)
+	private String passwordHash;
+	@Column(nullable = false, unique = true, length = 10)
 	private String nickname;
 	private LocalDateTime deletedAt;
 
-	public User(String email, String password, String nickname) {
+	public User(String email, String passwordHash, String nickname) {
 		this.email = email;
-		this.password = password;
+		this.passwordHash = passwordHash;
 		this.nickname = nickname;
 	}
 
 	// 회원 닉네임 변경
 	public void updateNickname(String nickname) {this.nickname = nickname;}
 	// 회원 비밀번호 변경
-	public void updatePassword(String password) {this.password = password;}
+	public void updatePasswordHash(String passwordHash) {this.passwordHash = passwordHash;}
 	// 회원 탈퇴 시각 기록
 	public void delete() {deletedAt = LocalDateTime.now();}
 	// 회원 탈퇴 여부 확인

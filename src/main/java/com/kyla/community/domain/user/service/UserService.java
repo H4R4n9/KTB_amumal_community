@@ -40,7 +40,12 @@ public class UserService {
 				request.getNickname()
 		);
 		User savedUser = userRepository.save(user);
-		userProfileImageService.saveIfPresent(savedUser.getUserId(), request.getProfileImagePath());
+		userProfileImageService.saveIfPresent(
+				savedUser.getUserId(),
+				request.getProfileImageObjectKey(),
+				request.getProfileImageContentType(),
+				request.getProfileImageFileSize()
+		);
 
 		return new SignupResponseDto(savedUser.getUserId());
 	}
@@ -69,13 +74,18 @@ public class UserService {
 			validateNicknameAvailable(request.getNickname());
 		}
 		user.updateNickname(request.getNickname());
-		userProfileImageService.saveIfChanged(userId, request.getProfileImagePath());
+		userProfileImageService.updateIfPresent(
+				userId,
+				request.getProfileImageObjectKey(),
+				request.getProfileImageContentType(),
+				request.getProfileImageFileSize()
+		);
 	}
 
 	// 비밀번호 확인값 검증 후 비밀번호 변경
 	public void changePassword(Long userId, ChangePasswordRequestDto request) {
 		validatePasswordMatch(request.getNewPassword(), request.getNewPasswordCheck());
-		getActiveUser(userId).updatePassword(passwordEncoder.encode(request.getNewPassword()));
+		getActiveUser(userId).updatePasswordHash(passwordEncoder.encode(request.getNewPassword()));
 	}
 
 	// 회원 생성·수정 전에 선택 프로필 이미지 업로드
@@ -98,20 +108,20 @@ public class UserService {
 				user.getUserId(),
 				user.getEmail(),
 				user.getNickname(),
-				getProfileImagePath(userId),
+				getProfileImageObjectKey(userId),
 				user.getCreatedAt(),
 				user.getUpdatedAt()
 		);
 	}
 
-	// 게시글·댓글 작성자 표시 정보 조회
+	// 목표 작성자 표시 정보 조회
 	@Transactional(readOnly = true)
 	public AuthorResponseDto getAuthor(Long userId) {
 		User user = getActiveUser(userId);
 		return new AuthorResponseDto(
 				user.getUserId(),
 				user.getNickname(),
-				getProfileImagePath(userId)
+				getProfileImageObjectKey(userId)
 		);
 	}
 
@@ -133,9 +143,9 @@ public class UserService {
 		}
 	}
 
-	// 회원의 최신 프로필 이미지 경로 조회
+	// 회원의 프로필 이미지 Object Key 조회
 	@Transactional(readOnly = true)
-	public String getProfileImagePath(Long userId) {
-		return userProfileImageService.getLatestFilePath(userId);
+	public String getProfileImageObjectKey(Long userId) {
+		return userProfileImageService.getObjectKey(userId);
 	}
 }
