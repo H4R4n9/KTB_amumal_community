@@ -43,3 +43,6 @@ out/
 AWSCLIV2.pkg
 amumal-backend-latest.tar
 .DS_Store
+
+# Local test code
+/src/test/
