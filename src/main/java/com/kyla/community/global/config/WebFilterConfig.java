@@ -1,10 +1,7 @@
 package com.kyla.community.global.config;
 
-import com.kyla.community.global.filter.HibernateQueryCountFilter;
 import com.kyla.community.global.filter.JwtAuthFilter;
 import com.kyla.community.global.security.JwtTokenProvider;
-import jakarta.persistence.EntityManagerFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,19 +21,6 @@ public class WebFilterConfig {
         filterRegistrationBean.setFilter(jwtAuthFilter);
         filterRegistrationBean.addUrlPatterns("/*");
         filterRegistrationBean.setOrder(1);
-        return filterRegistrationBean;
-    }
-
-    // 로컬 측정 옵션이 켜졌을 때 요청별 SQL statement 수를 한 줄로 기록
-    @Bean
-    @ConditionalOnProperty(name = "app.hibernate-query-count.enabled", havingValue = "true")
-    public FilterRegistrationBean<HibernateQueryCountFilter> hibernateQueryCountFilter(
-            EntityManagerFactory entityManagerFactory
-    ) {
-        FilterRegistrationBean<HibernateQueryCountFilter> filterRegistrationBean = new FilterRegistrationBean<>();
-        filterRegistrationBean.setFilter(new HibernateQueryCountFilter(entityManagerFactory));
-        filterRegistrationBean.addUrlPatterns("/*");
-        filterRegistrationBean.setOrder(0);
         return filterRegistrationBean;
     }
 }

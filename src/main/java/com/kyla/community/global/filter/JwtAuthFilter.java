@@ -83,20 +83,20 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		if (HttpMethod.OPTIONS.matches(method) || path.startsWith("/error")) {
 			return true;
 		}
-		if (path.startsWith("/uploads/")) {
-			return true;
-		}
 		if (path.startsWith("/auth")) {
 			return true;
 		}
 		if (HttpMethod.POST.matches(method) && "/users".equals(path)) {
 			return true;
 		}
-		if (HttpMethod.POST.matches(method) && "/users/upload/profile-image".equals(path)) {
+		if (HttpMethod.POST.matches(method)
+				&& ("/images/profiles/presigned-url".equals(path) || "/images/lambda/complete".equals(path))) {
 			return true;
 		}
 		if (HttpMethod.GET.matches(method)
-				&& ("/users/email".equals(path) || "/users/nickname".equals(path))) {
+				&& ("/users/email".equals(path)
+				|| "/users/nickname".equals(path)
+				|| "/images/status".equals(path))) {
 			return true;
 		}
 		return HttpMethod.GET.matches(method) && isPublicGoalRead(path);

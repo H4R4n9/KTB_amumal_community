@@ -1,5 +1,6 @@
 package com.kyla.community.domain.goal.entity;
 
+import com.kyla.community.domain.image.entity.Image;
 import com.kyla.community.global.entity.CreatedTimeEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -11,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Table(
 		name = "goal_images",
 		uniqueConstraints = {
-				@UniqueConstraint(name = "uk_goal_images_object_key", columnNames = "object_key"),
+				@UniqueConstraint(name = "uk_goal_images_image", columnNames = "image_id"),
 				@UniqueConstraint(name = "uk_goal_images_goal_order", columnNames = {"goal_id", "display_order"})
 		}
 )
@@ -26,22 +27,15 @@ public class GoalImage extends CreatedTimeEntity {
 	@JoinColumn(name = "goal_id", nullable = false, columnDefinition = "INT UNSIGNED")
 	private Goal goal;
 
-	@Column(nullable = false, unique = true, length = 512)
-	private String objectKey;
-
-	@Column(nullable = false, length = 100)
-	private String contentType;
-
-	@Column(nullable = false, columnDefinition = "BIGINT UNSIGNED")
-	private long fileSize;
+	@OneToOne(fetch = FetchType.LAZY, optional = false)
+	@JoinColumn(name = "image_id", nullable = false, unique = true, columnDefinition = "INT UNSIGNED")
+	private Image image;
 
 	@Column(nullable = false, columnDefinition = "SMALLINT UNSIGNED")
 	private int displayOrder;
 
-	public GoalImage(String objectKey, String contentType, long fileSize, int displayOrder) {
-		this.objectKey = objectKey;
-		this.contentType = contentType;
-		this.fileSize = fileSize;
+	public GoalImage(Image image, int displayOrder) {
+		this.image = image;
 		this.displayOrder = displayOrder;
 	}
 
