@@ -17,9 +17,10 @@ public interface ProfileImageRepository extends JpaRepository<ProfileImage, Long
 	@Query("""
 			select new com.kyla.community.domain.user.dto.projection.UserProfileImageDto(
 				pi.userId,
-				pi.objectKey
+				concat(i.path, i.name)
 			)
 			from ProfileImage pi
+			join pi.image i
 			where pi.userId in :userIds
 			""")
 	List<UserProfileImageDto> findResponsesByUserIds(@Param("userIds") Collection<Long> userIds);

@@ -2,7 +2,6 @@ package com.kyla.community.domain.user.service;
 
 import com.kyla.community.domain.user.dto.req.ChangePasswordRequestDto;
 import com.kyla.community.domain.user.dto.res.AuthorResponseDto;
-import com.kyla.community.domain.user.dto.res.ProfileUploadResponseDto;
 import com.kyla.community.domain.user.dto.req.SignupRequestDto;
 import com.kyla.community.domain.user.dto.res.SignupResponseDto;
 import com.kyla.community.domain.user.dto.req.UpdateUserRequestDto;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Objects;
 
@@ -42,9 +40,7 @@ public class UserService {
 		User savedUser = userRepository.save(user);
 		userProfileImageService.saveIfPresent(
 				savedUser.getUserId(),
-				request.getProfileImageObjectKey(),
-				request.getProfileImageContentType(),
-				request.getProfileImageFileSize()
+				request.getProfileImageObjectKey()
 		);
 
 		return new SignupResponseDto(savedUser.getUserId());
@@ -76,9 +72,7 @@ public class UserService {
 		user.updateNickname(request.getNickname());
 		userProfileImageService.updateIfPresent(
 				userId,
-				request.getProfileImageObjectKey(),
-				request.getProfileImageContentType(),
-				request.getProfileImageFileSize()
+				request.getProfileImageObjectKey()
 		);
 	}
 
@@ -86,11 +80,6 @@ public class UserService {
 	public void changePassword(Long userId, ChangePasswordRequestDto request) {
 		validatePasswordMatch(request.getNewPassword(), request.getNewPasswordCheck());
 		getActiveUser(userId).updatePasswordHash(passwordEncoder.encode(request.getNewPassword()));
-	}
-
-	// 회원 생성·수정 전에 선택 프로필 이미지 업로드
-	public ProfileUploadResponseDto uploadProfileImage(MultipartFile profileImage) {
-		return userProfileImageService.upload(profileImage);
 	}
 
 	// 회원 탈퇴 시 삭제 시각 기록

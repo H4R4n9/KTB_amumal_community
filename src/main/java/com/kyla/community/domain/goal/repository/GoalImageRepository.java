@@ -16,12 +16,12 @@ public interface GoalImageRepository extends JpaRepository<GoalImage, Long> {
 	@Query("""
 			select new com.kyla.community.domain.goal.dto.res.GoalImageResponseDto(
 				gi.goalImageId,
-				gi.objectKey,
-				gi.contentType,
-				gi.fileSize,
+				i.id,
+				concat(i.path, i.name),
 				gi.displayOrder
 			)
 			from GoalImage gi
+			join gi.image i
 			where gi.goal.goalId = :goalId
 			order by gi.displayOrder asc
 			""")
@@ -30,15 +30,12 @@ public interface GoalImageRepository extends JpaRepository<GoalImage, Long> {
 	@Query("""
 			select new com.kyla.community.domain.goal.dto.projection.GoalRepresentativeImageDto(
 				gi.goal.goalId,
-				gi.objectKey
+				concat(i.path, i.name)
 			)
 			from GoalImage gi
+			join gi.image i
 			where gi.goal.goalId in :goalIds
-			  and gi.displayOrder = (
-				select min(gi2.displayOrder)
-				from GoalImage gi2
-				where gi2.goal = gi.goal
-			  )
+			  and gi.displayOrder = 0
 			""")
 	List<GoalRepresentativeImageDto> findRepresentativesByGoalIds(
 			@Param("goalIds") List<Long> goalIds

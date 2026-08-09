@@ -4,11 +4,13 @@ import com.kyla.community.domain.goal.dto.projection.GoalListRowDto;
 import com.kyla.community.domain.goal.dto.projection.GoalRepresentativeImageDto;
 import com.kyla.community.domain.goal.dto.req.CreateGoalRequestDto;
 import com.kyla.community.domain.goal.dto.req.UpdateGoalRequestDto;
+import com.kyla.community.domain.goal.dto.res.GoalCursorPageResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalDetailResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalIdResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalImageResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalListItemResponseDto;
 import com.kyla.community.domain.goal.entity.Goal;
+import com.kyla.community.domain.goal.entity.GoalImage;
 import com.kyla.community.domain.goal.entity.GoalStat;
 import com.kyla.community.domain.goal.entity.GoalStatus;
 import com.kyla.community.domain.goal.repository.GoalImageRepository;
@@ -19,6 +21,8 @@ import com.kyla.community.domain.user.dto.res.AuthorResponseDto;
 import com.kyla.community.domain.user.entity.User;
 import com.kyla.community.domain.user.repository.ProfileImageRepository;
 import com.kyla.community.domain.user.service.UserService;
+import com.kyla.community.domain.image.entity.Image;
+import com.kyla.community.domain.image.service.ImageService;
 import com.kyla.community.global.exception.ApiException;
 import com.kyla.community.global.security.AuthorizationValidator;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,7 +46,8 @@ public class GoalService {
 	private final GoalStatRepository goalStatRepository;
 	private final GoalImageRepository goalImageRepository;
 	private final ProfileImageRepository profileImageRepository;
-	private final GoalImageService goalImageService;
+	private final ImageService imageService;
+	private final GoalCursorCodec goalCursorCodec;
 	private final UserService userService;
 	private final AuthorizationValidator authorizationValidator;
 
@@ -57,9 +63,11 @@ public class GoalService {
 		);
 
 		goal.initializeStat();
-		goalImageService.createImages(
+		attachImages(
+				goal,
+				userId,
 				request.getImages() == null ? List.of() : request.getImages()
-		).forEach(goal::addImage);
+		);
 
 		Goal savedGoal = goalRepository.save(goal);
 		return new GoalIdResponseDto(savedGoal.getGoalId());
@@ -76,16 +84,32 @@ public class GoalService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<GoalListItemResponseDto> getList(int offset, int limit) {
-		return toListResponses(goalRepository.findListRows(toPageable(offset, limit)));
+	public GoalCursorPageResponseDto getList(String encodedCursor, int limit) {
+		List<GoalListRowDto> rows = goalCursorCodec.decode(encodedCursor)
+				.map(cursor -> goalRepository.findListRowsAfter(
+						cursor.createdAt(),
+						cursor.goalId(),
+						toPageable(limit)
+				))
+				.orElseGet(() -> goalRepository.findListRows(toPageable(limit)));
+		return toCursorPageResponse(rows, limit);
 	}
 
 	@Transactional(readOnly = true)
-	public List<GoalListItemResponseDto> search(String keyword, int offset, int limit) {
+	public GoalCursorPageResponseDto search(String keyword, String encodedCursor, int limit) {
 		if (keyword == null || keyword.isBlank()) {
 			throw new IllegalArgumentException("검색어가 필요합니다.");
 		}
-		return toListResponses(goalRepository.searchRows(keyword.trim(), toPageable(offset, limit)));
+		String normalizedKeyword = keyword.trim();
+		List<GoalListRowDto> rows = goalCursorCodec.decode(encodedCursor)
+				.map(cursor -> goalRepository.searchRowsAfter(
+						normalizedKeyword,
+						cursor.createdAt(),
+						cursor.goalId(),
+						toPageable(limit)
+				))
+				.orElseGet(() -> goalRepository.searchRows(normalizedKeyword, toPageable(limit)));
+		return toCursorPageResponse(rows, limit);
 	}
 
 	public GoalIdResponseDto update(Long goalId, Long userId, UpdateGoalRequestDto request) {
@@ -100,10 +124,13 @@ public class GoalService {
 		);
 
 		if (request.getImages() != null) {
+			List<Image> previousImages = goal.getImages().stream()
+					.map(GoalImage::getImage)
+					.toList();
 			goal.clearImages();
 			goalRepository.flush();
-			goalImageService.createImages(request.getImages())
-					.forEach(goal::addImage);
+			previousImages.forEach(imageService::release);
+			attachImages(goal, userId, request.getImages());
 		}
 		return new GoalIdResponseDto(goalId);
 	}
@@ -111,6 +138,9 @@ public class GoalService {
 	public void delete(Long goalId, Long userId) {
 		Goal goal = getGoalForUpdate(goalId);
 		validateOwner(goal, userId);
+		goal.getImages().stream()
+				.map(GoalImage::getImage)
+				.forEach(imageService::release);
 		goalRepository.delete(goal);
 	}
 
@@ -139,6 +169,42 @@ public class GoalService {
 
 	private void validateOwner(Goal goal, Long userId) {
 		authorizationValidator.validateOwner(goal.getUser().getUserId(), userId);
+	}
+
+	private void attachImages(
+			Goal goal,
+			Long userId,
+			List<com.kyla.community.domain.goal.dto.req.GoalImageRequestDto> requests
+	) {
+		validateImageRequests(requests);
+		Map<String, Image> imagesByKey = imageService.getGoalImagesForAttach(
+				userId,
+				requests.stream().map(request -> request.getObjectKey()).toList()
+		).stream().collect(Collectors.toMap(Image::getObjectKey, image -> image));
+		requests.forEach(request -> goal.addImage(new GoalImage(
+				imagesByKey.get(request.getObjectKey()),
+				request.getDisplayOrder()
+		)));
+	}
+
+	private void validateImageRequests(
+			List<com.kyla.community.domain.goal.dto.req.GoalImageRequestDto> requests
+	) {
+		Set<String> objectKeys = new HashSet<>();
+		Set<Integer> displayOrders = new HashSet<>();
+		for (var request : requests) {
+			if (!objectKeys.add(request.getObjectKey())) {
+				throw new IllegalArgumentException("같은 이미지를 중복 등록할 수 없습니다.");
+			}
+			if (!displayOrders.add(request.getDisplayOrder())) {
+				throw new IllegalArgumentException("이미지 표시 순서는 중복될 수 없습니다.");
+			}
+		}
+		for (int order = 0; order < requests.size(); order++) {
+			if (!displayOrders.contains(order)) {
+				throw new IllegalArgumentException("이미지 표시 순서는 0부터 연속되어야 합니다.");
+			}
+		}
 	}
 
 	private GoalDetailResponseDto toDetailResponse(Goal goal, List<GoalImageResponseDto> images) {
@@ -209,10 +275,27 @@ public class GoalService {
 				.toList();
 	}
 
-	private Pageable toPageable(int offset, int limit) {
-		if (offset < 0 || limit < 1 || limit > 100) {
+	private GoalCursorPageResponseDto toCursorPageResponse(List<GoalListRowDto> rows, int limit) {
+		boolean hasNext = rows.size() > limit;
+		List<GoalListRowDto> pageRows = hasNext ? rows.subList(0, limit) : rows;
+		String nextCursor = hasNext
+				? goalCursorCodec.encode(
+						pageRows.getLast().createdAt(),
+						pageRows.getLast().goalId()
+				)
+				: null;
+
+		return new GoalCursorPageResponseDto(
+				toListResponses(pageRows),
+				nextCursor,
+				hasNext
+		);
+	}
+
+	private Pageable toPageable(int limit) {
+		if (limit < 1 || limit > 100) {
 			throw new IllegalArgumentException("페이지 범위가 올바르지 않습니다.");
 		}
-		return PageRequest.of(offset / limit, limit);
+		return PageRequest.of(0, limit + 1);
 	}
 }

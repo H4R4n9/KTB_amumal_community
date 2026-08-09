@@ -2,9 +2,9 @@ package com.kyla.community.domain.goal.controller;
 
 import com.kyla.community.domain.goal.dto.req.CreateGoalRequestDto;
 import com.kyla.community.domain.goal.dto.req.UpdateGoalRequestDto;
+import com.kyla.community.domain.goal.dto.res.GoalCursorPageResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalDetailResponseDto;
 import com.kyla.community.domain.goal.dto.res.GoalIdResponseDto;
-import com.kyla.community.domain.goal.dto.res.GoalListItemResponseDto;
 import com.kyla.community.domain.goal.service.GoalService;
 import com.kyla.community.global.common.ApiResponse;
 import com.kyla.community.global.filter.JwtAuthFilter;
@@ -23,8 +23,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/goals")
 @RequiredArgsConstructor
@@ -32,27 +30,27 @@ public class GoalController {
 	private final GoalService goalService;
 
 	@GetMapping
-	public ResponseEntity<ApiResponse<List<GoalListItemResponseDto>>> getGoals(
-			@RequestParam(defaultValue = "0") int offset,
+	public ResponseEntity<ApiResponse<GoalCursorPageResponseDto>> getGoals(
+			@RequestParam(required = false) String cursor,
 			@RequestParam(defaultValue = "20") int limit
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
 				HttpStatus.OK.value(),
 				"목표 목록 조회 성공",
-				goalService.getList(offset, limit)
+				goalService.getList(cursor, limit)
 		));
 	}
 
 	@GetMapping("/search")
-	public ResponseEntity<ApiResponse<List<GoalListItemResponseDto>>> searchGoals(
+	public ResponseEntity<ApiResponse<GoalCursorPageResponseDto>> searchGoals(
 			@RequestParam String keyword,
-			@RequestParam(defaultValue = "0") int offset,
+			@RequestParam(required = false) String cursor,
 			@RequestParam(defaultValue = "20") int limit
 	) {
 		return ResponseEntity.ok(ApiResponse.success(
 				HttpStatus.OK.value(),
 				"목표 검색 성공",
-				goalService.search(keyword, offset, limit)
+				goalService.search(keyword, cursor, limit)
 		));
 	}
 

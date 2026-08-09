@@ -26,6 +26,4 @@ public class SignupRequestDto {
 	@Size(max = 10)
 	private String nickname;
 	private String profileImageObjectKey;
-	private String profileImageContentType;
-	private Long profileImageFileSize;
 }

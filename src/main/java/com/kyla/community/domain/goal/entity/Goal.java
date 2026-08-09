@@ -13,7 +13,13 @@ import java.util.List;
 
 @Getter
 @Entity
-@Table(name = "goals")
+@Table(
+		name = "goals",
+		indexes = @Index(
+				name = "idx_goals_created_goal",
+				columnList = "created_at DESC, goal_id DESC"
+		)
+)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Goal extends BaseTimeEntity {
 	@Id
